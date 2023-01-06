@@ -56,9 +56,12 @@ public class UserController {
     return userService.search(username);
   }
 
-  @GetMapping(value = "/change-password")
+  @PostMapping(value = "/change-password")
   public Boolean changePassword(@RequestParam String oldPassword, @RequestParam String newPassword) {
-    return true;
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentPrincipalName = authentication.getName();
+    Users users = userService.search(currentPrincipalName);
+    return userService.changePassword(users, oldPassword, newPassword);
   }
 
   @GetMapping(value = "/all-users")

@@ -27,5 +27,8 @@ public class Ticket{
     private Integer seatChild;
 
     @ManyToOne
+    Bus bus;
+
+    @ManyToOne
     private Users users;
 }

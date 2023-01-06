@@ -5,6 +5,7 @@ import com.bus.ticket.repository.BusRepository;
 import com.bus.ticket.service.BusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,24 +66,24 @@ public class BusResource {
             .body(result);
     }
 
-    @PatchMapping(value = "/buses/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<Bus> partialUpdateBus(@PathVariable(value = "id", required = false) final Long id, @RequestBody Bus bus)
-        throws URISyntaxException {
-        log.debug("REST request to partial update Bus partially : {}, {}", id, bus);
-        if (bus.getId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid id" );
-        }
-        if (!Objects.equals(id, bus.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid id" );
-        }
-
-        if (!busRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid id" );
-        }
-
-        Optional<Bus> result = busService.partialUpdate(bus);
-        return ResponseEntity.ok(result.get());
-    }
+//    @PatchMapping(value = "/buses/{id}", consumes = "application/merge-patch+json")
+//    public ResponseEntity<Bus> partialUpdateBus(@PathVariable(value = "id", required = false) final Long id, @RequestBody Bus bus)
+//        throws URISyntaxException {
+//        log.debug("REST request to partial update Bus partially : {}, {}", id, bus);
+//        if (bus.getId() == null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid id" );
+//        }
+//        if (!Objects.equals(id, bus.getId())) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid id" );
+//        }
+//
+//        if (!busRepository.existsById(id)) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid id" );
+//        }
+//
+//        Optional<Bus> result = busService.partialUpdate(bus);
+//        return ResponseEntity.ok(result.get());
+//    }
 
     @GetMapping("/buses")
     public List<Bus> getAllBuses() {
@@ -97,9 +98,9 @@ public class BusResource {
     }
 
     @GetMapping("/search-bus-by-schedule")
-    public List<Bus> searchBusBySchedule(@RequestParam String from, @RequestParam String to, @RequestParam LocalDate date) {
-        log.debug("REST request to get all Buses");
-        return busService.findAll();
+    public List<Bus> searchBusBySchedule(@RequestParam String from, @RequestParam String to, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        log.debug("REST request to get all Buses" + date.toString());
+        return busService.findByToAndFromAndDate(from, to, date);
     }
 
     @GetMapping("/buses/{id}")
@@ -114,7 +115,7 @@ public class BusResource {
         log.debug("REST request to delete Bus : {}", id);
         busService.delete(id);
         return ResponseEntity
-            .noContent()
+            .ok()
             .build();
     }
 }

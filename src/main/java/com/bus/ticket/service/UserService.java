@@ -14,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -64,6 +66,16 @@ public class UserService {
 
   public Users whoami(HttpServletRequest req) {
     return userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
+  }
+
+  public boolean changePassword(Users users, String oldPassword, String newPassword){
+    if (passwordEncoder.matches(oldPassword, users.getPassword())){
+      users.setPassword(passwordEncoder.encode(newPassword));
+      userRepository.save(users);
+    }else {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your password is wrong");
+    }
+    return true;
   }
 
   public List<Users> usersList(){
