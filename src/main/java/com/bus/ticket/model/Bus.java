@@ -36,7 +36,7 @@ public class Bus {
     private String toStation;
 
     @Column(name = "max_seat")
-    private Integer maxSeat;
+    private Integer maxSeat = 0;
 
     @Column(name = "departure_date_time")
     private LocalDateTime departureDateTime;

@@ -1,7 +1,9 @@
 package com.bus.ticket.controller;
 
 import com.bus.ticket.model.Ticket;
+import com.bus.ticket.model.Users;
 import com.bus.ticket.repository.TicketRepository;
+import com.bus.ticket.repository.UserRepository;
 import com.bus.ticket.service.TicketService;
 import org.apache.tomcat.util.http.ResponseUtil;
 import org.slf4j.Logger;
@@ -30,10 +32,12 @@ public class TicketResource {
     private final Logger log = LoggerFactory.getLogger(TicketResource.class);
     private final TicketService ticketService;
     private final TicketRepository ticketRepository;
+    private final UserRepository userRepository;
 
-    public TicketResource(TicketService ticketService, TicketRepository ticketRepository) {
+    public TicketResource(TicketService ticketService, TicketRepository ticketRepository, UserRepository userRepository) {
         this.ticketService = ticketService;
         this.ticketRepository = ticketRepository;
+        this.userRepository = userRepository;
     }
 //
     @PostMapping("/tickets")
@@ -83,9 +87,9 @@ public class TicketResource {
     public List<Ticket> getAllTicketByUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();
-        return ticketService.findAll();
+        Users users = userRepository.findByEmail(currentPrincipalName);
+        return ticketService.findAllTicketByUser(users);
     }
-
 
     @GetMapping("/tickets")
     public List<Ticket> getAllTickets() {
@@ -100,12 +104,21 @@ public class TicketResource {
         return ResponseEntity.ok(ticket.get());
     }
 
-    @DeleteMapping("/cancel/tickets/{id}")
-    public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
-        log.debug("REST request to delete Ticket : {}", id);
-        ticketService.delete(id);
+
+    @DeleteMapping("/cancel/tickets")
+    public ResponseEntity<Void> deleteTicket(@RequestParam Long ticketId, @RequestParam Long busId) {
+        ticketService.delete(ticketId, busId);
         return ResponseEntity
-            .noContent()
-            .build();
+                .noContent()
+                .build();
     }
+
+//    @DeleteMapping("/cancel/tickets/{id}")
+//    public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
+//        log.debug("REST request to delete Ticket : {}", id);
+//        ticketService.delete(id);
+//        return ResponseEntity
+//            .noContent()
+//            .build();
+//    }
 }

@@ -21,10 +21,10 @@ public class Ticket{
     private Long id;
 
     @Column(name = "seat_adult")
-    private Integer seatAdult;
+    private Integer seatAdult = 0;
 
     @Column(name = "seat_child")
-    private Integer seatChild;
+    private Integer seatChild = 0;
 
     @ManyToOne
     Bus bus;
